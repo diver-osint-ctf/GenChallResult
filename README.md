@@ -36,10 +36,10 @@ Writeupのために、3種類の形式で問題情報を出力するスクリプ
 
 ```bash
 deno task run -h
-Usage: deno task run <challenges.csv> <solves.csv>
-Example: deno task run ~/Download/HogeCTF-challenges.csv ~/Download/HogeCTF-solves.csv
+Usage: deno task run -c <challenges.csv> -s <solves.csv> [-t <teams.csv>]
+Example: deno task run -c ~/Download/HogeCTF-challenges.csv -s ~/Download/HogeCTF-solves.csv -t ~/Download/HogeCTF-teams.csv
 ```
 
-challenges.csvとsolves.csvは`CTFd > 管理画面 > Config > Import & Export > Download CSV`より、challengesとsolvesを選択してダウンロードしてください。
+challenges.csvとsolves.csvとteams.csvは`CTFd > 管理画面 > Config > Import & Export > Download CSV`より、challengesとsolvesとteamsを選択してダウンロードしてください。
 
 ![image](./assets/image.png)

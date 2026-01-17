@@ -32,11 +32,36 @@ export async function loadChalls(filePath: string): Promise<Challs> {
   return challs;
 }
 
+export async function loadTeams(filePath: string): Promise<Set<string>> {
+  const file = await Deno.readTextFile(filePath);
+  const parsedData = parse(file, {
+    skipFirstRow: true,
+  });
+
+  const ignoredTeams = new Set<string>();
+
+  for (const row of parsedData) {
+    const id = row.id;
+    const hidden = row.hidden;
+    const banned = row.banned;
+
+    if (hidden === "True" || banned === "True") {
+      ignoredTeams.add(id);
+    }
+  }
+  return ignoredTeams;
+}
+
 // solvesはファイルサイズが大きいため、ストリーミング処理を行う
-export async function loadSolves(_filePath: string, challs: Challs) {
+export async function loadSolves(
+  _filePath: string,
+  challs: Challs,
+  ignoredTeams: Set<string> = new Set(),
+) {
   let filePath = _filePath;
   if (
-    !filePath.startsWith("./") && !filePath.startsWith("../") &&
+    !filePath.startsWith("./") &&
+    !filePath.startsWith("../") &&
     !filePath.startsWith("/")
   ) {
     filePath = `./${filePath}`;
@@ -55,7 +80,15 @@ export async function loadSolves(_filePath: string, challs: Challs) {
       continue;
     }
     const challId = line[0];
-    challs[challId].solver++;
+    const teamId = line[2];
+
+    if (ignoredTeams.has(teamId)) {
+      continue;
+    }
+
+    if (challs[challId]) {
+      challs[challId].solver++;
+    }
   }
   return challs;
 }
