@@ -10,7 +10,7 @@ export function buildMdTable(_challs: Challs): string {
     if (a[1].genre > b[1].genre) {
       return 1;
     }
-    return 0;
+    return a[1].solver - b[1].solver;
   });
   for (const [id, chall] of challs) {
     md +=
@@ -26,9 +26,9 @@ export function buildMdSections(challs: Challs): string {
   );
   for (const genre of genres) {
     md += `## ${genre}\n\n`;
-    const genreChalls = Object.entries(challs).filter((chall) =>
-      chall[1].genre === genre
-    );
+    const genreChalls = Object.entries(challs)
+      .filter((chall) => chall[1].genre === genre)
+      .sort((a, b) => a[1].solver - b[1].solver);
     for (const [_, chall] of genreChalls) {
       md += `### ${chall.name} (${chall.score}pt / ${chall.solver} solves)\n\n`;
     }
