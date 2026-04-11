@@ -71,7 +71,10 @@ func buildMdSections(challs Challs) string {
 	return sb.String()
 }
 
-func buildJSON(challs Challs) string {
-	data, _ := json.Marshal(challs)
-	return string(data)
+func buildJSON(challs Challs) (string, error) {
+	data, err := json.Marshal(challs)
+	if err != nil {
+		return "", err
+	}
+	return string(data), nil
 }

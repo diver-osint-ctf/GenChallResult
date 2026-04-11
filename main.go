@@ -56,7 +56,12 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Error writing sections.md: %v\n", err)
 		os.Exit(1)
 	}
-	if err := os.WriteFile("out/challs.json", []byte(buildJSON(challs)), 0644); err != nil {
+	jsonData, err := buildJSON(challs)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error building JSON: %v\n", err)
+		os.Exit(1)
+	}
+	if err := os.WriteFile("out/challs.json", []byte(jsonData), 0644); err != nil {
 		fmt.Fprintf(os.Stderr, "Error writing challs.json: %v\n", err)
 		os.Exit(1)
 	}

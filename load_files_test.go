@@ -20,6 +20,61 @@ func writeTempCSV(t *testing.T, content string) string {
 	return tmpFile.Name()
 }
 
+func TestLoadChalls_FileNotFound(t *testing.T) {
+	_, err := loadChalls("/nonexistent/path.csv")
+	if err == nil {
+		t.Error("expected error for nonexistent file")
+	}
+}
+
+func TestLoadTeams_FileNotFound(t *testing.T) {
+	_, err := loadTeams("/nonexistent/path.csv")
+	if err == nil {
+		t.Error("expected error for nonexistent file")
+	}
+}
+
+func TestLoadSolves_FileNotFound(t *testing.T) {
+	_, err := loadSolves("/nonexistent/path.csv", Challs{}, nil)
+	if err == nil {
+		t.Error("expected error for nonexistent file")
+	}
+}
+
+func TestLoadChalls_InvalidScore(t *testing.T) {
+	path := writeTempCSV(t,
+		"id,name,description,max_attempts,value,category,type,state,requirements\n"+
+			"1,Valid,,0,100,Web,standard,visible,\n"+
+			"2,Invalid Score,,0,notanumber,Crypto,standard,visible,\n"+
+			"3,Also Valid,,0,200,Web,standard,visible,\n")
+	defer os.Remove(path)
+
+	challs, err := loadChalls(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if challs["1"] == nil {
+		t.Error("chall 1 should be loaded")
+	}
+	if challs["2"] != nil {
+		t.Error("chall 2 should be skipped due to invalid score")
+	}
+	if challs["3"] == nil {
+		t.Error("chall 3 should be loaded")
+	}
+}
+
+func TestLoadChalls_EmptyFile(t *testing.T) {
+	path := writeTempCSV(t, "")
+	defer os.Remove(path)
+
+	_, err := loadChalls(path)
+	if err == nil {
+		t.Error("expected error for empty file (no header)")
+	}
+}
+
 func TestLoadChalls(t *testing.T) {
 	path := writeTempCSV(t,
 		"id,name,description,max_attempts,value,category,type,state,requirements\n"+
@@ -170,5 +225,37 @@ func TestLoadSolves_SkipUnknownChallenges(t *testing.T) {
 	}
 	if result["999"] != nil {
 		t.Error("chall 999 should not exist")
+	}
+}
+
+func TestLoadSolves_DifferentColumnOrder(t *testing.T) {
+	// team_id と challenge_id のカラム順序が通常と異なるCSV
+	path := writeTempCSV(t,
+		"id,team_id,user_id,challenge_id,ip,provided,type,date\n"+
+			"1,1,1,1,127.0.0.1,flag1,correct,2026-01-01\n"+
+			"2,2,2,1,127.0.0.1,flag1,correct,2026-01-01\n")
+	defer os.Remove(path)
+
+	challs := Challs{
+		"1": {Name: "C1", Genre: "Web", Score: 100, Solver: 0},
+	}
+
+	result, err := loadSolves(path, challs, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if result["1"].Solver != 2 {
+		t.Errorf("chall 1: solver = %d, want 2", result["1"].Solver)
+	}
+}
+
+func TestLoadSolves_EmptyFile(t *testing.T) {
+	path := writeTempCSV(t, "")
+	defer os.Remove(path)
+
+	_, err := loadSolves(path, Challs{}, nil)
+	if err == nil {
+		t.Error("expected error for empty file (no header)")
 	}
 }

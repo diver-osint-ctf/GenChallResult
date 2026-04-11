@@ -41,7 +41,7 @@ func loadChalls(filePath string) (Challs, error) {
 		genre := record[colIdx["category"]]
 		score, err := strconv.Atoi(record[colIdx["value"]])
 		if err != nil {
-			fmt.Printf("Error: %v\n", err)
+			fmt.Fprintf(os.Stderr, "Warning: skipping challenge with invalid score: %v\n", err)
 			continue
 		}
 
@@ -104,9 +104,14 @@ func loadSolves(filePath string, challs Challs, ignoredTeams map[string]bool) (C
 	defer file.Close()
 
 	reader := csv.NewReader(file)
-	// Skip header
-	if _, err := reader.Read(); err != nil {
+	header, err := reader.Read()
+	if err != nil {
 		return nil, err
+	}
+
+	colIdx := make(map[string]int)
+	for i, h := range header {
+		colIdx[h] = i
 	}
 
 	for {
@@ -118,8 +123,8 @@ func loadSolves(filePath string, challs Challs, ignoredTeams map[string]bool) (C
 			return nil, err
 		}
 
-		challID := record[0]
-		teamID := record[2]
+		challID := record[colIdx["challenge_id"]]
+		teamID := record[colIdx["team_id"]]
 
 		if ignoredTeams[teamID] {
 			continue

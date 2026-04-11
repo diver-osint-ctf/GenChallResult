@@ -50,7 +50,10 @@ func TestBuildMdSections_GroupedByGenre(t *testing.T) {
 }
 
 func TestBuildJSON(t *testing.T) {
-	result := buildJSON(sampleChalls)
+	result, err := buildJSON(sampleChalls)
+	if err != nil {
+		t.Fatal(err)
+	}
 	expected, _ := json.Marshal(sampleChalls)
 	if result != string(expected) {
 		t.Errorf("got: %s\nwant: %s", result, string(expected))
@@ -74,7 +77,10 @@ func TestBuildMdSections_EmptyInput(t *testing.T) {
 }
 
 func TestBuildJSON_EmptyInput(t *testing.T) {
-	result := buildJSON(emptyChalls)
+	result, err := buildJSON(emptyChalls)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if result != "{}" {
 		t.Errorf("expected '{}', got: %s", result)
 	}
