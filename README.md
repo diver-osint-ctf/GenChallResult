@@ -2,7 +2,7 @@
 
 # GenChallResult
 
-Writeupのために、3種類の形式で問題情報を出力するスクリプト
+Writeupのために、3種類の形式で問題情報を出力するツール
 
 ```md
 ## OSINT
@@ -32,14 +32,35 @@ Writeupのために、3種類の形式で問題情報を出力するスクリプ
 }
 ```
 
-## how to use
+## How to use
+
+### Docker Compose (推奨)
 
 ```bash
-deno task run -h
-Usage: deno task run -c <challenges.csv> -s <solves.csv> [-t <teams.csv>]
-Example: deno task run -c ~/Download/HogeCTF-challenges.csv -s ~/Download/HogeCTF-solves.csv -t ~/Download/HogeCTF-teams.csv
+docker compose run --rm app -c challenges.csv -s solves.csv -t teams.csv
 ```
+
+### Go
+
+```bash
+# ビルド
+make build
+
+# 実行
+./genChallResult -c challenges.csv -s solves.csv -t teams.csv
+```
+
+`-t` (teams.csv) はオプションです。指定するとhidden/bannedチームのsolve数を除外します。
 
 challenges.csvとsolves.csvとteams.csvは`CTFd > 管理画面 > Config > Import & Export > Download CSV`より、challengesとsolvesとteamsを選択してダウンロードしてください。
 
 ![image](./assets/image.png)
+
+## Development
+
+```bash
+make test   # テスト実行
+make lint   # go vet によるlint
+make build  # バイナリビルド
+make clean  # バイナリ削除
+```
