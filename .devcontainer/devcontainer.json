@@ -1,0 +1,16 @@
+{
+  "name": "genChallResult",
+  "build": {
+    "context": "..",
+    "dockerfile": "Dockerfile"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.go",
+        "anthropic.claude-code"
+      ]
+    }
+  },
+  "postCreateCommand": "go mod download"
+}
